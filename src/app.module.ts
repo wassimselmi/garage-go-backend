@@ -2,26 +2,24 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
 import configuration from './config/configuration';
-import { AuthModule } from './auth/auth.module'; // Import AuthModule
-
 
 @Module({
   imports: [
-    // Load configuration
     ConfigModule.forRoot({
       isGlobal: true,
       load: [configuration],
     }),
-    // Connect to MongoDB
     MongooseModule.forRootAsync({
       useFactory: async () => ({
-        uri: process.env.MONGODB_URI,
+        uri: process.env.MONGODB_URI || 'mongodb://localhost:27017/garage-go',
       }),
     }),
-    // Import UsersModule
     UsersModule,
     AuthModule,
+    // GaragesModule, // Add when you create it
+    // BookingsModule, // Add when you create it
   ],
 })
 export class AppModule {}

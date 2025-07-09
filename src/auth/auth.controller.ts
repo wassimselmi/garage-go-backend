@@ -1,31 +1,25 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, ValidationPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { UsersService } from '../users/users.service';
 import { LoginUserDto } from './dto/login-user.dto';
-
-//test
+import { CreateUserDto } from '../users/dto/create-user.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService, // Inject AuthService for authentication logic
-    private readonly usersService: UsersService, // Inject UsersService to access user-related logic
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
-  /**
-   * Handle user login.
-   * @param loginUserDto - DTO containing email and password.
-   * @returns The access token if login is successful.
-   */
   @Post('login')
-  async login(@Body() loginUserDto: LoginUserDto): Promise<{ accessToken: string }> {
-    // Validate the user's credentials
+  async login(@Body() loginUserDto: LoginUserDto): Promise<{ accessToken: string; user: any }> {
     const user = await this.authService.validateUser(
       loginUserDto.email,
       loginUserDto.password,
     );
-
-    // If valid, generate a JWT token
     return this.authService.login(user);
+  }
+
+  @Post('register')
+  async register(
+    @Body(ValidationPipe) createUserDto: CreateUserDto
+  ): Promise<{ accessToken: string; user: any }> {
+    return this.authService.register(createUserDto);
   }
 }

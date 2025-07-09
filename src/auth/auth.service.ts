@@ -2,39 +2,39 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
+import { CreateUserDto } from '../users/dto/create-user.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly usersService: UsersService, // Inject UsersService to access user-related logic
-    private readonly jwtService: JwtService, // Inject JwtService to generate and verify tokens
+    private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
   ) {}
 
-  /**
-   * Validate user credentials.
-   * @param email - The user's email address.
-   * @param password - The user's raw (unhashed) password.
-   * @returns The user object if valid, otherwise throws UnauthorizedException.
-   */
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
-    if (user && (await bcrypt.compare(password, user.password))) {
-      // Exclude sensitive fields like password from the returned object
+    if (user && user.isActive && (await bcrypt.compare(password, user.password))) {
       const { password, ...result } = user.toObject();
       return result;
     }
-    throw new UnauthorizedException('Invalid email or password');
+    throw new UnauthorizedException('Invalid email or password or account is inactive');
   }
 
-  /**
-   * Generate a JWT for the authenticated user.
-   * @param user - The user object (excluding sensitive fields like password).
-   * @returns The access token.
-   */
-  async login(user: any): Promise<{ accessToken: string }> {
-    const payload = { email: user.email, sub: user._id }; // Set token payload
-    return {
-      accessToken: this.jwtService.sign(payload), // Generate JWT
+  async login(user: any): Promise<{ accessToken: string; user: any }> {
+    const payload = { 
+      email: user.email, 
+      sub: user._id, 
+      role: user.role 
     };
+    return {
+      accessToken: this.jwtService.sign(payload),
+      user: user,
+    };
+  }
+
+  // Added registration method
+  async register(createUserDto: CreateUserDto): Promise<{ accessToken: string; user: any }> {
+    const user = await this.usersService.create(createUserDto);
+    return this.login(user);
   }
 }
