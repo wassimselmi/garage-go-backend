@@ -8,7 +8,9 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  async login(@Body() loginUserDto: LoginUserDto): Promise<{ accessToken: string; user: any }> {
+  async login(
+    @Body() loginUserDto: LoginUserDto,
+  ): Promise<{ accessToken: string; user: any }> {
     const user = await this.authService.validateUser(
       loginUserDto.email,
       loginUserDto.password,
@@ -18,7 +20,7 @@ export class AuthController {
 
   @Post('register')
   async register(
-    @Body(ValidationPipe) createUserDto: CreateUserDto
+    @Body(ValidationPipe) createUserDto: CreateUserDto,
   ): Promise<{ accessToken: string; user: any }> {
     return this.authService.register(createUserDto);
   }
