@@ -1,4 +1,11 @@
-import { IsEmail, IsString, IsEnum, IsObject, ValidateNested, IsOptional } from 'class-validator';
+import {
+  IsEmail,
+  IsString,
+  IsEnum,
+  IsObject,
+  ValidateNested,
+  IsOptional,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class ProfileDto {

@@ -5,7 +5,6 @@ import { User, UserDocument } from './schemas/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 
-
 @Injectable()
 export class UsersService {
   constructor(
@@ -15,18 +14,18 @@ export class UsersService {
   // Create a new user
   async create(createUserDto: CreateUserDto): Promise<Omit<User, 'password'>> {
     const { email, password } = createUserDto;
-  
+
     const existingUser = await this.userModel.findOne({ email }).exec();
     if (existingUser) {
       throw new ConflictException('Email already exists');
     }
-  
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const createdUser = new this.userModel({
       ...createUserDto,
       password: hashedPassword,
     });
-  
+
     const savedUser = await createdUser.save();
     const userObject = savedUser.toObject(); // Convert to plain object
     const { password: _, ...sanitizedUser } = userObject; // Exclude the password field

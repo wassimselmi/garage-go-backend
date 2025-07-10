@@ -19,7 +19,7 @@ export class Garage {
       lat: { type: Number, required: true },
       lng: { type: Number, required: true },
     },
-    required: true
+    required: true,
   })
   location: {
     lat: number;
@@ -50,7 +50,7 @@ export class Garage {
       friday: { open: String, close: String },
       saturday: { open: String, close: String },
       sunday: { open: String, close: String },
-    }
+    },
   })
   workingHours: {
     monday: { open: string; close: string };
